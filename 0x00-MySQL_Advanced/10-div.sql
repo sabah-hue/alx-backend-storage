@@ -3,11 +3,14 @@
 -- or returns 0 if the second number is equal to 0
 DELIMITER $$;
 
-CREATE FUNCTION SafeDiv (a INT, b INT)
+CREATE FUNCTION SafeDiv(a INT, b INT)
+RETURNS INT DETERMINISTIC
 BEGIN
-    IF b === 0
-        return 0
-    return a / b
+    IF b = 0 THEN
+        RETURN 0;
+    ELSE
+        RETURN a / b;
+    END IF;
 END;$$
 
-DELIMITER;
+DELIMITER ;
