@@ -6,6 +6,17 @@ from typing import Union, Callable, Optional
 UTypes = Union[str, bytes, int, float]
 
 
+def count_calls(method: Callable) -> Callable:
+    """ decorator """
+    key = method.__qualname__
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """ Wrapper """
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+    return wrapper
+
+
 class Cache:
     """ Cache class """
     def __init__(self):
@@ -13,6 +24,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: UTypes) -> str:
         """ return string """
         k = str(uuid.uuid4())
@@ -27,7 +39,7 @@ class Cache:
         if self._redis.get(key) and fn:
             return fn(self._redis.get(key))
         return self._redis.get(key)
-        
+
     def get_str(self, value: bytes) -> str:
         """ convert  to string """
         # return value.decode("utf-8")
