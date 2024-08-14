@@ -24,7 +24,7 @@ class Cache:
         take a key string argument &
         convert the data back to the desired format
         """
-        if self._redis.get(key):
+        if self._redis.get(key) and fn:
             return fn(self._redis.get(key))
         return self._redis.get(key)
         
