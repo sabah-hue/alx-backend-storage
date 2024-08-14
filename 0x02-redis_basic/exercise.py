@@ -3,13 +3,14 @@
 import uuid
 import redis
 from typing import Union, Callable, Optional
+import functools
 UTypes = Union[str, bytes, int, float]
 
 
 def count_calls(method: Callable) -> Callable:
     """ decorator """
     key = method.__qualname__
-    @wraps(method)
+    @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
         """ Wrapper """
         self._redis.incr(key)
