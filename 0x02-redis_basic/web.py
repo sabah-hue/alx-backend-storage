@@ -15,5 +15,5 @@ def get_page(url: str) -> str:
     res = redis.Redis().get(cached_key)
     if res is None:
         res = requests.get(url).text
-        r.setex(cached_key, 10, res)
+        redis.Redis().setex(cached_key, 10, res)
     return res
