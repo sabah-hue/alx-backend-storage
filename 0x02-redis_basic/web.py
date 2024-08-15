@@ -12,7 +12,7 @@ def get_page(url: str) -> str:
     key = f"count:{url}"
     count = redis.Redis().incr(key)
     cached_key = f"html:{url}"
-    res = redis.Redis().get(cached_key)
+    res = redis.Redis().get(cached_key).decode('utf-8')
     if res is None:
         res = requests.get(url).text
     redis.Redis().setex(cached_key, 10, res)
