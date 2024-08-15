@@ -4,6 +4,7 @@ import uuid
 import redis
 from typing import Union, Callable, Optional
 import functools
+import sys
 UTypes = Union[str, bytes, int, float]
 
 
@@ -18,6 +19,21 @@ def count_calls(method: Callable) -> Callable:
     return wrapper
 
 
+def call_history(method: Callable) -> Callable:
+    """ decorator """
+    key = method.__qualname__
+    inpt = f"{key}:inputs"
+    outpt = f"{key}:outputs"
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """Wrapper """
+        self._redis.rpush(inpt, str(args))
+        r = method(self, *args, **kwargs)
+        self._redis.rpush(outpt, str(r))
+        return r
+    return wrapper
+
+
 class Cache:
     """ Cache class """
     def __init__(self):
@@ -26,6 +42,7 @@ class Cache:
         self._redis.flushdb()
 
     @count_calls
+    @call_history
     def store(self, data: UTypes) -> str:
         """ return string """
         k = str(uuid.uuid4())
